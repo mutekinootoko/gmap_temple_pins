@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <title>Info windows</title>
+        <style>
+            html, body, #map-canvas {
+                height: 100%;
+                margin: 0px;
+                padding: 0px
+            }
+        </style>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+        <script>
+
+            var mapOptions;
+            var geocoder;
+            var bounds;
+            var map;
+            var temple_addresses = ["新北市三峽區長福街1號", "新北市淡水區下圭柔山35號之3", "新北市新店區檳榔路36巷1之1號"];
+
+            function initialize() {
+
+                mapOptions = {
+                    zoom: 4
+                };
+
+                geocoder = new google.maps.Geocoder();
+                bounds = new google.maps.LatLngBounds();
+
+                map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+                for (i = 0; i < temple_addresses.length; i++) {
+                    var each_temple_address = temple_addresses[i];
+                    geocoder.geocode({'address': temple_addresses[i]}, function(results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+
+                            var infowindow = new google.maps.InfoWindow({
+                                content: each_temple_address
+                            });
+
+                            var marker = new google.maps.Marker({
+                                map: map,
+                                position: results[0].geometry.location
+                            });
+                            google.maps.event.addListener(marker, 'click', function() {
+                                infowindow.open(map, marker);
+                            });
+                            console.log(marker.getPosition());
+                            bounds.extend(marker.getPosition());
+                            map.fitBounds(bounds);
+                        } else {
+                            alert('Geocode was not successful for the following reason: ' + status);
+                        }
+                    });
+                    
+                }
+            }
+            google.maps.event.addDomListener(window, 'load', initialize);
+
+        </script>
+    </head>
+    <body>
+        <div id="map-canvas"></div>
+    </body>
+</html>
